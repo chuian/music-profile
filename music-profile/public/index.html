@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Profile</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>🎵 Music Profile</h1>
+    <form id="profileForm">
+      <input name="name" placeholder="Enter your name" required />
+      <select name="genre" required>
+        <option value="">Select a genre</option>
+        <option>Pop</option>
+        <option>Rock</option>
+        <option>Jazz</option>
+        <option>Classical</option>
+        <option>Hip-hop</option>
+      </select>
+      <button type="submit">Add Profile</button>
+    </form>
+
+    <button id="showProfiles">Show All Profiles</button>
+    <ul id="profilesList"></ul>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
