@@ -4,9 +4,11 @@ const loadBtn = document.getElementById('loadBtn');
 const newBtn = document.getElementById('newBtn');
 const clearBtn = document.getElementById('clearBtn');
 const saveBtn = document.getElementById('saveBtn');
+const hideBtn = document.getElementById('hideBtn');
 
 let editingId = null;
 const LOCAL_KEY = 'profiles_local_v1';
+const HIDDEN_KEY = 'profiles_hidden_v1';
 
 function genId() {
   return 'local_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
@@ -150,6 +152,29 @@ async function loadProfiles() {
   renderProfiles(local);
   return local;
 }
+
+// Hide/show handling
+function applyHideState(hidden) {
+  if (hidden) {
+    profilesDiv.classList.add('hidden');
+    hideBtn.textContent = 'Show Profiles';
+  } else {
+    profilesDiv.classList.remove('hidden');
+    hideBtn.textContent = 'Hide Profiles';
+  }
+  try { localStorage.setItem(HIDDEN_KEY, hidden ? '1' : '0'); } catch (e) {}
+}
+
+// initialize hide state from storage
+try {
+  const saved = localStorage.getItem(HIDDEN_KEY);
+  applyHideState(saved === '1');
+} catch (e) { /* ignore */ }
+
+hideBtn.addEventListener('click', () => {
+  const isHidden = profilesDiv.classList.contains('hidden');
+  applyHideState(!isHidden);
+});
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();

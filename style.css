@@ -64,3 +64,6 @@ button:hover {
 .suggestions { margin-top: 12px; }
 .dash-actions { display:flex; gap:8px; margin-top:12px; }
 .small-btn { padding: 8px 12px; border-radius:8px; border:none; cursor:pointer; background:#ffc8dd; }
+
+/* utility to hide profiles area */
+.hidden { display: none !important; }
