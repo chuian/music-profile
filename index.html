@@ -17,6 +17,17 @@
         <button id="hideBtn" type="button">Hide Profiles</button>
       </div>
 
+      <!-- Search panel moved above controls and centered -->
+      <div class="panel search-panel">
+        <h3>Find Your Profile</h3>
+        <form id="searchForm">
+          <label for="searchName">Name</label>
+          <input id="searchName" type="text" placeholder="Type your name" />
+          <button id="searchBtn" type="submit">Search</button>
+        </form>
+        <div id="searchResults" class="search-results"></div>
+      </div>
+
       <form id="profileForm">
     <label>Name:</label>
     <input type="text" id="name" required />
@@ -63,18 +74,8 @@
 
       <div id="profiles" class="profiles"></div>
     </div>
-
-    <aside class="right" id="searchPanel">
-      <div class="panel">
-        <h3>Find Your Profile</h3>
-        <form id="searchForm">
-          <label for="searchName">Name</label>
-          <input id="searchName" type="text" placeholder="Type your name" />
-          <button id="searchBtn" type="submit">Search</button>
-        </form>
-        <div id="searchResults" class="search-results"></div>
-      </div>
-    </aside>
+    
+    <!-- moved search form above controls per request; keep results in left column -->
   </div>
 
   <script src="script.js" type="text/javascript"></script>

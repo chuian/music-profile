@@ -41,15 +41,15 @@ button:hover {
   display: flex;
   gap: 8px;
   width: 100%;
-  justify-content: space-between;
+  justify-content: center;
 }
 .controls button { width: auto; padding: 8px 12px; }
 
 /* Profiles list */
 .profiles { width: 320px; margin-top: 20px; }
-.main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 20px; width: 100%; max-width: 980px; }
-.left { display: flex; flex-direction: column; gap: 16px; }
-.right { align-self: start; }
+.main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; max-width: 720px; margin: 0 auto; }
+.left { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.right { display:none; }
 .panel { background: white; padding: 14px; border-radius: 10px; }
 .search-results { margin-top: 8px; }
 .search-results .result { padding: 8px; border-bottom: 1px solid #eee; }
