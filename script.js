@@ -310,9 +310,32 @@ form.addEventListener('submit', async (e) => {
   await loadProfiles();
 });
 
-loadBtn.addEventListener('click', () => loadProfiles());
-newBtn.addEventListener('click', () => { editingId = null; form.reset(); saveBtn.textContent = 'Save Profile'; document.getElementById('name').focus(); });
-clearBtn.addEventListener('click', () => { if (confirm('Clear local saved profiles?')) { localStorage.removeItem(LOCAL_KEY); loadProfiles(); } });
+if (loadBtn) loadBtn.addEventListener('click', () => loadProfiles());
+
+// Clear button becomes a confirm-toggle: first click arms, second click clears
+const clearDefaultText = clearBtn ? clearBtn.textContent : 'Clear All (local)';
+let clearTimeoutId = null;
+if (clearBtn) {
+  clearBtn.addEventListener('click', () => {
+    const armed = clearBtn.classList.contains('active');
+    if (!armed) {
+      clearBtn.classList.add('active');
+      clearBtn.textContent = 'Confirm Clear';
+      // auto-cancel after 6s
+      clearTimeoutId = setTimeout(() => {
+        clearBtn.classList.remove('active');
+        clearBtn.textContent = clearDefaultText;
+      }, 6000);
+      return;
+    }
+    // armed -> perform clear
+    clearBtn.classList.remove('active');
+    clearBtn.textContent = clearDefaultText;
+    if (clearTimeoutId) { clearTimeout(clearTimeoutId); clearTimeoutId = null; }
+    localStorage.removeItem(LOCAL_KEY);
+    loadProfiles();
+  });
+}
 
 // auto-load on script start
 loadProfiles();
