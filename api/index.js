@@ -16,6 +16,28 @@ module.exports = async (req, res) => {
       const result = await coll.insertOne(body);
       res.status(200).json({ message: 'Saved', insertedId: result.insertedId });
     } else if (req.method === 'GET') {
+      // Support both list and single-get by id.
+      // id can be provided as query param ?id=... or as a path segment /api/<id>
+      const url = new URL(req.url, 'http://localhost');
+      const idFromQuery = url.searchParams.get('id');
+      // attempt to get trailing path segment if present (e.g. /api/<id>)
+      const pathParts = url.pathname.split('/').filter(Boolean);
+      // pathParts might be ['api'] or ['api','<id>'] depending on routing
+      const idFromPath = pathParts.length > 1 ? pathParts[pathParts.length - 1] : null;
+      const id = idFromQuery || idFromPath;
+
+      if (id) {
+        if (String(id).startsWith('local_')) return res.status(400).json({ error: 'Local id cannot be fetched from server' });
+        try {
+          const _id = new ObjectId(String(id));
+          const doc = await coll.findOne({ _id });
+          if (!doc) return res.status(404).json({ error: 'Not found' });
+          return res.status(200).json(doc);
+        } catch (err) {
+          return res.status(400).json({ error: 'Invalid id' });
+        }
+      }
+
       const docs = await coll.find({}).sort({ _id: -1 }).limit(20).toArray();
       res.status(200).json(docs);
     } else if (req.method === 'PUT') {

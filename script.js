@@ -36,7 +36,14 @@ async function createProfileLocalOrApi(profile) {
     const res = await fetch('/api', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(profile)
     });
-    if (res.ok) return true;
+    if (res.ok) {
+      try {
+        const body = await res.json();
+        // if server returned insertedId, attach it so UI can use it
+        if (body && body.insertedId) profile._id = String(body.insertedId);
+      } catch (e) {}
+      return true;
+    }
     throw new Error('API POST failed');
   } catch (e) {
     const local = loadFromLocal();
@@ -79,12 +86,15 @@ function renderProfiles(list) {
   const html = ['<h3>Saved Profiles</h3>'];
   html.push('<ul class="profiles-list">');
   list.forEach(p => {
-    const id = p._id || p.id || genId();
+    const rawId = p._id || p.id || genId();
+    const id = String(rawId);
     html.push(`<li class="profile-item" data-id="${id}">`);
-    html.push(`<div class="profile-main"><b>${escapeHtml(p.name || '')}</b> — ${escapeHtml(p.genre || '')}</div>`);
+    html.push(`<div class="profile-main"><b>${escapeHtml(p.name || '')}</b> — ${escapeHtml(p.genre || '')}` +
+      `<div class="profile-meta">${escapeHtml(p.vibes || '')} ${escapeHtml(p.crowd || '')} ${escapeHtml(p.experience || '')}</div></div>`);
     html.push('<div class="profile-actions">');
     html.push(`<button class="action-btn edit-btn" data-id="${id}" data-name="${escapeAttr(p.name || '')}" data-genre="${escapeAttr(p.genre || '')}">Edit</button>`);
     html.push(`<button class="action-btn delete-btn" data-id="${id}">Delete</button>`);
+    html.push(`<button class="action-btn select-btn" data-id="${id}" data-profile='${escapeAttr(JSON.stringify(p))}'>Select</button>`);
     html.push('</div>');
     html.push('</li>');
   });
@@ -99,6 +109,15 @@ function renderProfiles(list) {
     editingId = id;
     document.getElementById('name').value = name;
     document.getElementById('genre').value = genre;
+    // populate new fields if available
+    try {
+      const p = JSON.parse(e.currentTarget.closest('.profile-item')?.querySelector('.select-btn')?.dataset.profile || '{}');
+      if (p) {
+        document.getElementById('vibes').value = p.vibes || '';
+        document.getElementById('crowd').value = p.crowd || '';
+        document.getElementById('experience').value = p.experience || '';
+      }
+    } catch (err) {}
     saveBtn.textContent = 'Update Profile';
     document.getElementById('name').focus();
   }));
@@ -108,6 +127,16 @@ function renderProfiles(list) {
     if (!confirm('Delete this profile?')) return;
     await deleteProfileLocalOrApi(id);
     await loadProfiles();
+  }));
+
+  profilesDiv.querySelectorAll('.select-btn').forEach(btn => btn.addEventListener('click', (e) => {
+    const profileData = e.currentTarget.dataset.profile;
+    let profile = {};
+    try { profile = JSON.parse(profileData || '{}'); } catch (err) {}
+    // store current profile in sessionStorage and navigate to dashboard
+    try { sessionStorage.setItem('current_profile', JSON.stringify(profile)); } catch (err) {}
+    // navigate to dashboard
+    window.location.href = `dashboard.html?id=${encodeURIComponent(e.currentTarget.dataset.id)}`;
   }));
 }
 
@@ -126,9 +155,12 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const name = document.getElementById('name').value.trim();
   const genre = document.getElementById('genre').value;
+  const vibes = document.getElementById('vibes').value;
+  const crowd = document.getElementById('crowd').value;
+  const experience = document.getElementById('experience').value;
   if (!name || !genre) return alert('Please enter name and genre');
 
-  const profile = { name, genre };
+  const profile = { name, genre, vibes, crowd, experience };
   if (!editingId) {
     await createProfileLocalOrApi(profile);
     form.reset();

@@ -56,3 +56,11 @@ button:hover {
 .edit-btn { background: #c8f7ff; border: 1px solid #99e9ff; }
 .delete-btn { background: #ffd6d6; border: 1px solid #ffb3b3; }
 .action-btn:hover { filter: brightness(0.98); }
+
+/* Dashboard tweaks */
+.dashboard { width: 720px; max-width: 95%; margin: 20px auto; display: flex; gap: 20px; }
+.panel { background: white; padding: 18px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.08); flex: 1; }
+.profile-info h2 { margin-top: 0; }
+.suggestions { margin-top: 12px; }
+.dash-actions { display:flex; gap:8px; margin-top:12px; }
+.small-btn { padding: 8px 12px; border-radius:8px; border:none; cursor:pointer; background:#ffc8dd; }
