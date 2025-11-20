@@ -8,14 +8,16 @@
 </head>
 <body>
   <h1>🎵 Music Profiles<br>Music Event Entertainment Match</h1>
-  <div id="controls" class="controls">
-    <button id="newBtn" type="button">New Profile</button>
-    <!--<button id="loadBtn" type="button">Show Saved Profiles</button>-->
-    <button id="clearBtn" type="button">Clear All (local)</button>
-    <button id="hideBtn" type="button">Hide Profiles</button>
-  </div>
+  <div class="main-grid">
+    <div class="left">
+      <div id="controls" class="controls">
+        <button id="newBtn" type="button">New Profile</button>
+        <!--<button id="loadBtn" type="button">Show Saved Profiles</button>-->
+        <button id="clearBtn" type="button">Clear All (local)</button>
+        <button id="hideBtn" type="button">Hide Profiles</button>
+      </div>
 
-  <form id="profileForm">
+      <form id="profileForm">
     <label>Name:</label>
     <input type="text" id="name" required />
 
@@ -57,9 +59,23 @@
     </select>
 
     <button id="saveBtn" type="submit">Save Profile</button>
-  </form>
+      </form>
 
-  <div id="profiles" class="profiles"></div>
+      <div id="profiles" class="profiles"></div>
+    </div>
+
+    <aside class="right" id="searchPanel">
+      <div class="panel">
+        <h3>Find Your Profile</h3>
+        <form id="searchForm">
+          <label for="searchName">Name</label>
+          <input id="searchName" type="text" placeholder="Type your name" />
+          <button id="searchBtn" type="submit">Search</button>
+        </form>
+        <div id="searchResults" class="search-results"></div>
+      </div>
+    </aside>
+  </div>
 
   <script src="script.js" type="text/javascript"></script>
 </body>

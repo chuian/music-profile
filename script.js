@@ -6,9 +6,18 @@ const clearBtn = document.getElementById('clearBtn');
 const saveBtn = document.getElementById('saveBtn');
 const hideBtn = document.getElementById('hideBtn');
 
+// search panel elements
+const searchForm = document.getElementById('searchForm');
+const searchName = document.getElementById('searchName');
+const searchBtn = document.getElementById('searchBtn');
+const searchResults = document.getElementById('searchResults');
+
 let editingId = null;
 const LOCAL_KEY = 'profiles_local_v1';
 const HIDDEN_KEY = 'profiles_hidden_v1';
+
+// Search settings
+const SEARCH_KEY = 'profiles_search_last';
 
 function genId() {
   return 'local_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
@@ -175,6 +184,74 @@ hideBtn.addEventListener('click', () => {
   const isHidden = profilesDiv.classList.contains('hidden');
   applyHideState(!isHidden);
 });
+
+// Search logic: look on server (GET /api) and local storage, combine and filter by name
+async function searchProfilesByName(name) {
+  const results = [];
+  const term = String(name || '').trim().toLowerCase();
+  if (!term) return results;
+
+  // local matches
+  try {
+    const local = loadFromLocal();
+    local.forEach(p => {
+      if ((p.name || '').toLowerCase().includes(term)) results.push({ source: 'local', profile: p });
+    });
+  } catch (e) {}
+
+  // server matches (fetch list and filter)
+  try {
+    const api = await fetchFromApi();
+    if (api && Array.isArray(api)) {
+      api.forEach(p => {
+        if ((p.name || '').toLowerCase().includes(term)) results.push({ source: 'server', profile: p });
+      });
+    }
+  } catch (e) {}
+
+  return results;
+}
+
+function renderSearchResults(list) {
+  if (!searchResults) return;
+  if (!list || list.length === 0) { searchResults.innerHTML = '<div class="result"><em>No matches</em></div>'; return; }
+  const html = [];
+  list.forEach(item => {
+    const p = item.profile;
+    const id = String(p._id || p.id || '');
+    html.push(`<div class="result"><div><b>${escapeHtml(p.name||'')}</b> — ${escapeHtml(p.genre||'')}</div>`);
+    html.push(`<div class="actions"><button class="small-btn select-result" data-id="${id}" data-profile='${escapeAttr(JSON.stringify(p))}'>Open</button><button class="small-btn copy-name" data-name="${escapeAttr(p.name||'')}">Fill</button></div>`);
+    html.push('</div>');
+  });
+  searchResults.innerHTML = html.join('');
+
+  // wire buttons
+  searchResults.querySelectorAll('.select-result').forEach(btn => btn.addEventListener('click', (e) => {
+    const profileData = e.currentTarget.dataset.profile;
+    let profile = {};
+    try { profile = JSON.parse(profileData || '{}'); } catch (err) {}
+    try { sessionStorage.setItem('current_profile', JSON.stringify(profile)); } catch (err) {}
+    const id = e.currentTarget.dataset.id || '';
+    window.location.href = `dashboard.html?id=${encodeURIComponent(id)}`;
+  }));
+
+  searchResults.querySelectorAll('.copy-name').forEach(btn => btn.addEventListener('click', (e) => {
+    const name = e.currentTarget.dataset.name || '';
+    document.getElementById('name').value = name;
+    document.getElementById('name').focus();
+  }));
+}
+
+searchForm && searchForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const q = searchName.value.trim();
+  try { localStorage.setItem(SEARCH_KEY, q); } catch (err) {}
+  const results = await searchProfilesByName(q);
+  renderSearchResults(results);
+});
+
+// restore last search
+try { const last = localStorage.getItem(SEARCH_KEY); if (last) { searchName.value = last; } } catch (e) {}
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
