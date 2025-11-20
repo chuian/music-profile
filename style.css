@@ -54,6 +54,15 @@ button:hover {
 .search-results { margin-top: 8px; }
 .search-results .result { padding: 8px; border-bottom: 1px solid #eee; }
 .search-results .result .actions { margin-top: 6px; display:flex; gap:6px; }
+
+/* Active/toggled button state */
+.controls button.active {
+  background: #ff9fc3;
+  box-shadow: 0 0 0 4px rgba(255,159,195,0.16);
+}
+
+/* Profile form collapsed when New Profile not toggled */
+#profileForm.collapsed { display: none; }
 .profiles-list { list-style: none; padding: 0; margin: 0; }
 .profile-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 8px; border-bottom: 1px solid #eee; }
 .profile-main { flex: 1; }

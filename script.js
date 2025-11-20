@@ -130,7 +130,8 @@ function renderProfiles(list) {
       }
     } catch (err) {}
     saveBtn.textContent = 'Update Profile';
-    document.getElementById('name').focus();
+    // open the form for editing
+    openFormForEdit();
   }));
 
   profilesDiv.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', async (e) => {
@@ -167,9 +168,11 @@ function applyHideState(hidden) {
   if (hidden) {
     profilesDiv.classList.add('hidden');
     hideBtn.textContent = 'Show Profiles';
+    hideBtn.classList.add('active');
   } else {
     profilesDiv.classList.remove('hidden');
     hideBtn.textContent = 'Hide Profiles';
+    hideBtn.classList.remove('active');
   }
   try { localStorage.setItem(HIDDEN_KEY, hidden ? '1' : '0'); } catch (e) {}
 }
@@ -184,6 +187,37 @@ hideBtn.addEventListener('click', () => {
   const isHidden = profilesDiv.classList.contains('hidden');
   applyHideState(!isHidden);
 });
+
+// --- New-profile toggle handling ---
+const formEl = document.getElementById('profileForm');
+function setNewActive(on) {
+  if (on) {
+    newBtn.classList.add('active');
+    formEl.classList.remove('collapsed');
+    // focus first field
+    try { document.getElementById('name').focus(); } catch (e) {}
+  } else {
+    newBtn.classList.remove('active');
+    formEl.classList.add('collapsed');
+    // reset editing state when hiding
+    editingId = null;
+    try { form.reset(); saveBtn.textContent = 'Save Profile'; } catch (e) {}
+  }
+}
+
+// start with form hidden until New Profile is toggled
+setNewActive(false);
+
+newBtn.addEventListener('click', () => {
+  const isActive = newBtn.classList.contains('active');
+  setNewActive(!isActive);
+});
+
+// ensure edit action opens the form and highlights New
+function openFormForEdit() {
+  setNewActive(true);
+  newBtn.classList.add('active');
+}
 
 // Search logic: look on server (GET /api) and local storage, combine and filter by name
 async function searchProfilesByName(name) {
