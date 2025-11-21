@@ -254,7 +254,7 @@ function renderSearchResults(list) {
     const p = item.profile;
     const id = String(p._id || p.id || '');
     html.push(`<div class="result"><div><b>${escapeHtml(p.name||'')}</b> — ${escapeHtml(p.genre||'')}</div>`);
-    html.push(`<div class="actions"><button class="small-btn select-result" data-id="${id}" data-profile='${escapeAttr(JSON.stringify(p))}'>Open</button><button class="small-btn copy-name" data-name="${escapeAttr(p.name||'')}">Fill</button></div>`);
+    html.push(`<div class="actions"><button class="small-btn select-result" data-id="${id}" data-profile='${escapeAttr(JSON.stringify(p))}'>Open</button><!-- <button class="small-btn copy-name" data-name="${escapeAttr(p.name||'')}">Fill</button> --> </div>`);
     html.push('</div>');
   });
   searchResults.innerHTML = html.join('');
@@ -269,11 +269,13 @@ function renderSearchResults(list) {
     window.location.href = `dashboard.html?id=${encodeURIComponent(id)}`;
   }));
 
+  /*
   searchResults.querySelectorAll('.copy-name').forEach(btn => btn.addEventListener('click', (e) => {
     const name = e.currentTarget.dataset.name || '';
     document.getElementById('name').value = name;
     document.getElementById('name').focus();
   }));
+  */
 }
 
 searchForm && searchForm.addEventListener('submit', async (e) => {

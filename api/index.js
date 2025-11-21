@@ -1,3 +1,6 @@
+//API uses older querying, manual querying,  in comparison to Prisma. 
+//Modern AI , MCP - context7 ->Updated libraries for AI to resource from as a tool. 
+
 const { MongoClient, ObjectId } = require('mongodb');
 
 const uri = process.env.MONGO_URI;
