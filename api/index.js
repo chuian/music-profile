@@ -1,92 +1,137 @@
-//API uses older querying, manual querying,  in comparison to Prisma. 
-//Modern AI , MCP - context7 ->Updated libraries for AI to resource from as a tool. 
+// Express version of your API for Vercel + MongoDB
 
-const { MongoClient, ObjectId } = require('mongodb');
+const express = require("express");
+const { MongoClient, ObjectId } = require("mongodb");
+const serverless = require("serverless-http"); // lets express run on vercel
 
 const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri);
-const DB = 'musicprofile';
-const COLL = 'profiles';
 
-module.exports = async (req, res) => {
+const DB = "musicprofile";
+const COLL = "profiles";
+
+const app = express();
+app.use(express.json());
+
+// ensure mongo connection
+async function getCollection() {
+  if (!client.topology || !client.topology.isConnected()) {
+    await client.connect();
+  }
+  return client.db(DB).collection(COLL);
+}
+
+/* --------------------
+   CREATE (POST /api)
+----------------------*/
+app.post("/", async (req, res) => {
   try {
-    if (!client.topology || !client.topology.isConnected()) await client.connect();
-    const db = client.db(DB);
-    const coll = db.collection(COLL);
-
-    if (req.method === 'POST') {
-      const body = await parseBody(req);
-      const result = await coll.insertOne(body);
-      res.status(200).json({ message: 'Saved', insertedId: result.insertedId });
-    } else if (req.method === 'GET') {
-      // Support both list and single-get by id.
-      // id can be provided as query param ?id=... or as a path segment /api/<id>
-      const url = new URL(req.url, 'http://localhost');
-      const idFromQuery = url.searchParams.get('id');
-      // attempt to get trailing path segment if present (e.g. /api/<id>)
-      const pathParts = url.pathname.split('/').filter(Boolean);
-      // pathParts might be ['api'] or ['api','<id>'] depending on routing
-      const idFromPath = pathParts.length > 1 ? pathParts[pathParts.length - 1] : null;
-      const id = idFromQuery || idFromPath;
-
-      if (id) {
-        if (String(id).startsWith('local_')) return res.status(400).json({ error: 'Local id cannot be fetched from server' });
-        try {
-          const _id = new ObjectId(String(id));
-          const doc = await coll.findOne({ _id });
-          if (!doc) return res.status(404).json({ error: 'Not found' });
-          return res.status(200).json(doc);
-        } catch (err) {
-          return res.status(400).json({ error: 'Invalid id' });
-        }
-      }
-
-      const docs = await coll.find({}).sort({ _id: -1 }).limit(20).toArray();
-      res.status(200).json(docs);
-    } else if (req.method === 'PUT') {
-      const body = await parseBody(req);
-      const id = body.id || body._id;
-      if (!id) return res.status(400).json({ error: 'Missing id for update' });
-      if (String(id).startsWith('local_')) return res.status(400).json({ error: 'Local id cannot be updated on server' });
-      try {
-        const _id = new ObjectId(String(id));
-        const update = { ...body };
-        delete update.id; delete update._id;
-        const updated = await coll.findOneAndUpdate({ _id }, { $set: update }, { returnDocument: 'after' });
-        if (!updated.value) return res.status(404).json({ error: 'Not found' });
-        res.status(200).json({ message: 'Updated', doc: updated.value });
-      } catch (err) {
-        return res.status(400).json({ error: 'Invalid id' });
-      }
-    } else if (req.method === 'DELETE') {
-      const body = await parseBody(req);
-      const id = body.id || body._id;
-      if (!id) return res.status(400).json({ error: 'Missing id for delete' });
-      if (String(id).startsWith('local_')) return res.status(400).json({ error: 'Local id cannot be deleted on server' });
-      try {
-        const _id = new ObjectId(String(id));
-        const del = await coll.deleteOne({ _id });
-        if (del.deletedCount === 0) return res.status(404).json({ error: 'Not found' });
-        res.status(200).json({ message: 'Deleted' });
-      } catch (err) {
-        return res.status(400).json({ error: 'Invalid id' });
-      }
-    } else {
-      res.status(405).json({ error: 'Method not allowed' });
-    }
+    const coll = await getCollection();
+    const result = await coll.insertOne(req.body);
+    res.status(200).json({ message: "Saved", insertedId: result.insertedId });
   } catch (err) {
-    console.error('API error:', err);
+    console.error("POST error:", err);
     res.status(500).json({ error: String(err) });
   }
-};
+});
 
-function parseBody(req) {
-  return new Promise((resolve, reject) => {
-    let data = '';
-    req.on('data', chunk => (data += chunk));
-    req.on('end', () => {
-      try { resolve(JSON.parse(data || '{}')); }
-      catch (e) { reject(e); }
-    });
-  });
-}
+/* --------------------
+   READ LIST (GET /api)
+----------------------*/
+app.get("/", async (req, res) => {
+  try {
+    const coll = await getCollection();
+
+    // optional: ?id=abc
+    const id = req.query.id;
+    if (id) {
+      if (String(id).startsWith("local_"))
+        return res.status(400).json({ error: "Local id cannot be fetched" });
+
+      try {
+        const doc = await coll.findOne({ _id: new ObjectId(id) });
+        if (!doc) return res.status(404).json({ error: "Not found" });
+        return res.json(doc);
+      } catch {
+        return res.status(400).json({ error: "Invalid id" });
+      }
+    }
+
+    const docs = await coll.find({}).sort({ _id: -1 }).limit(20).toArray();
+    res.json(docs);
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+/* ------------------------------
+   READ SINGLE VIA PATH (/api/:id)
+-------------------------------*/
+app.get("/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    const coll = await getCollection();
+    const doc = await coll.findOne({ _id: new ObjectId(id) });
+    if (!doc) return res.status(404).json({ error: "Not found" });
+    res.json(doc);
+  } catch (err) {
+    res.status(400).json({ error: "Invalid id" });
+  }
+});
+
+/* --------------------
+   UPDATE (PUT /api)
+----------------------*/
+app.put("/", async (req, res) => {
+  try {
+    const body = req.body;
+    const id = body.id || body._id;
+
+    if (!id) return res.status(400).json({ error: "Missing id" });
+    if (String(id).startsWith("local_"))
+      return res.status(400).json({ error: "Local id cannot be updated" });
+
+    const coll = await getCollection();
+    const update = { ...body };
+    delete update.id;
+    delete update._id;
+
+    const result = await coll.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: update },
+      { returnDocument: "after" }
+    );
+
+    if (!result.value) return res.status(404).json({ error: "Not found" });
+
+    res.json({ message: "Updated", doc: result.value });
+  } catch (err) {
+    res.status(400).json({ error: "Invalid id" });
+  }
+});
+
+/* --------------------
+   DELETE (DELETE /api)
+----------------------*/
+app.delete("/", async (req, res) => {
+  try {
+    const id = req.body.id || req.body._id;
+
+    if (!id) return res.status(400).json({ error: "Missing id" });
+    if (String(id).startsWith("local_"))
+      return res.status(400).json({ error: "Local id cannot be deleted" });
+
+    const coll = await getCollection();
+    const del = await coll.deleteOne({ _id: new ObjectId(id) });
+    if (!del.deletedCount) return res.status(404).json({ error: "Not found" });
+
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    res.status(400).json({ error: "Invalid id" });
+  }
+});
+
+/* --------------------
+   EXPORT FOR VERCEL
+----------------------*/
+module.exports = serverless(app);
