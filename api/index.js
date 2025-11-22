@@ -2,7 +2,6 @@
 
 const express = require("express");
 const { MongoClient, ObjectId } = require("mongodb");
-const serverless = require("serverless-http"); // lets express run on vercel
 
 const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri);
@@ -134,4 +133,4 @@ app.delete("/", async (req, res) => {
 /* --------------------
    EXPORT FOR VERCEL
 ----------------------*/
-module.exports = serverless(app);
+module.exports = app;
