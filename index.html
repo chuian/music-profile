@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Profile CRUD Music Event Entertainment Match </title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>🎵 Music Profiles for Music Event Entertainment Match 🎵</h1>
+  <div class="main-grid">
+    <div class="left">
+      <div id="controls" class="controls">
+        <button id="newBtn" type="button">New Profile</button>
+        <!--<button id="loadBtn" type="button">Show Saved Profiles</button>-->
+        <button id="clearBtn" type="button">Clear All (local)</button>
+        <button id="hideBtn" type="button">Hide Profiles</button>
+      </div>
+
+      <!-- Search panel moved above controls and centered -->
+      <div class="panel search-panel">
+        <h3>Find Your Profile</h3>
+        <form id="searchForm">
+          <label for="searchName">Name</label>
+          <input id="searchName" type="text" placeholder="Type your name" />
+          <button id="searchBtn" type="submit">Search</button>
+        </form>
+        <div id="searchResults" class="search-results"></div>
+      </div>
+
+      <form id="profileForm">
+    <label>Name:</label>
+    <input type="text" id="name" required />
+
+    <label>Favorite Genre:</label>
+    <select id="genre" required>
+      <option value="">Select...</option>
+      <option value="Pop">Pop</option>
+      <option value="Rock">Rock</option>
+      <option value="Hip-Hop">Hip-Hop</option>
+      <option value="Jazz">Jazz</option>
+      <option value="Classical">Classical</option>
+    </select>
+
+    <label>Vibes Wanted:</label>
+    <select id="vibes">
+      <option value="">Select...</option>
+      <option value="Chill">Chill</option>
+      <option value="Energetic">Energetic</option>
+      <option value="Romantic">Romantic</option>
+      <option value="Laid-back">Laid-back</option>
+      <option value="Party">Party</option>
+    </select>
+
+    <label>Crowd Level:</label>
+    <select id="crowd">
+      <option value="">Select...</option>
+      <option value="Low">Low</option>
+      <option value="Medium">Medium</option>
+      <option value="High">High</option>
+    </select>
+
+    <label>Wanted Experience:</label>
+    <select id="experience">
+      <option value="">Select...</option>
+      <option value="Dancing">Dancing</option>
+      <option value="Listening">Listening</option>
+      <option value="Networking">Networking</option>
+      <option value="Open-mic">Open-mic</option>
+    </select>
+
+    <button id="saveBtn" type="submit">Save Profile</button>
+      </form>
+
+      <div id="profiles" class="profiles"></div>
+    </div>
+    
+    <!-- moved search form above controls per request; keep results in left column -->
+  </div>
+
+  <script src="script.js" type="text/javascript"></script>
+</body>
+</html>

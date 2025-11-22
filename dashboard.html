@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* small dashboard-specific adjustments */
+    .dashboard { width: 720px; max-width: 95%; margin: 20px auto; display: flex; gap: 20px; }
+    .panel { background: white; padding: 18px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.08); flex: 1; }
+    .profile-info h2 { margin-top: 0; }
+    .suggestions { margin-top: 12px; }
+    .suggestions ul { padding-left: 18px; }
+    .dash-actions { display:flex; gap:8px; margin-top:12px; }
+    .small-btn { padding: 8px 12px; border-radius:8px; border:none; cursor:pointer; background:#ffc8dd; }
+  </style>
+</head>
+<body>
+  <header style="text-align:center; margin-top:20px;"><h1>Profile Dashboard</h1></header>
+  <div class="dashboard">
+    <div class="panel profile-info">
+      <h2 id="p-name">Profile Information</h2>
+      <div id="p-details"></div>
+      <div class="dash-actions">
+        <button id="backBtn" class="small-btn">Back</button>
+        <button id="eventBtn" class="small-btn">Event Info</button>
+      </div>
+    </div>
+    <div class="panel tools">
+      <h3>Event Suggestions</h3>
+      <div class="dash-actions">
+        <button id="drinksBtn" class="small-btn">Drinks</button>
+        <button id="foodBtn" class="small-btn">Food</button>
+        <button id="activityBtn" class="small-btn">Activities</button>
+      </div>
+      <div id="suggestions" class="suggestions"></div>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
