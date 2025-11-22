@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "DATABASE_URL"
 }
 
 model MusicProfile {
